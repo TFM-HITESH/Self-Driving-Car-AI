@@ -21,10 +21,17 @@ class Car {
         this.damaged = false
         // Assuming that car is not damaged at first
 
+        this.useBrain = controlType == 'AI'
+        // Using the brain when AI control
+
         // Only create sensor if car is not a dummy
         if (controlType != 'DUMMY') {
             this.sensor = new Sensor(this)
             // Creating a new sensor Object, to cast rays and calculate intersections. We pass car as the parameter
+
+            this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 4])
+            // Created a brain
+            // rayCount number of inputs, one hidden layer with 6 neurons. 4 output for left right forwards reverse
         }
 
         this.controls = new Controls(controlType)
@@ -53,6 +60,21 @@ class Car {
         if (this.sensor) {
             this.sensor.update(roadBorders, traffic)
             // Calling the update method from sensor
+            const offsets = this.sensor.readings.map((s) =>
+                s == null ? 0 : 1 - s.offset,
+            )
+            // This offsets mapping gives low values when the objects are far away and high values when closer. To incentivize neural network to maximize distance and stay away from everything
+
+            const outputs = NeuralNetwork.feedForward(offsets, this.brain)
+            console.log(outputs)
+
+            // Use the outputs to control car if AI is active
+            if (this.useBrain) {
+                this.controls.forward = outputs[0]
+                this.controls.left = outputs[1]
+                this.controls.right = outputs[2]
+                this.controls.reverse = outputs[3]
+            }
         }
     }
 

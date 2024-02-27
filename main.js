@@ -1,20 +1,25 @@
-const canvas = document.getElementById('myCanvas')
+const carCanvas = document.getElementById('carCanvas')
 // Getting the Canvas Element to make changes
-
-canvas.width = 200
+carCanvas.width = 200
 // Setting the Dimensions. Height as full, width as 200 to leave space for neural network
 
-const ctx = canvas.getContext('2d')
+const networkCanvas = document.getElementById('networkCanvas')
+// Getting the Canvas Element to make changes
+networkCanvas.width = 300
+// Setting the Dimensions of network
+
+const carCtx = carCanvas.getContext('2d')
 // Getting a context reference to the Canvas, to allow for drawing on top of it
 // We only need 2d mode here
 // All functions associated with drawing can be referenced to this context
+const networkCtx = networkCanvas.getContext('2d')
 
-const road = new Road(canvas.width / 2, canvas.width * 0.9)
+const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9)
 // Placing the road at half the width of the canvas (Centered)
 // Giving the road a width of 90% canvas width. 10% Margin
 
-const car = new Car(road.getLaneCenter(1), 100, 30, 50, 'KEYS')
-// Creating a car object at x=center of a lane n, y=100, width=30, height=50 (all in px). KEYS means control is given to it
+const car = new Car(road.getLaneCenter(1), 100, 30, 50, 'AI')
+// Creating a car object at x=center of a lane n, y=100, width=30, height=50 (all in px). KEYS means control is given to Human
 
 const traffic = [new Car(road.getLaneCenter(1), -100, 30, 50, 'DUMMY', 2)]
 // Creating an array of traffic obstacles. DUMMY means its traffic. 2 is maxspeed of dummy
@@ -22,7 +27,7 @@ const traffic = [new Car(road.getLaneCenter(1), -100, 30, 50, 'DUMMY', 2)]
 // Custom function to update the motion of car
 animate()
 
-function animate() {
+function animate(time) {
     // Rendering all traffic
     for (let i = 0; i < traffic.length; i++) {
         traffic[i].update(road.borders, [])
@@ -35,25 +40,32 @@ function animate() {
     // Giving the road borders to the car object
     // Giving our car info about traffic
 
-    canvas.height = window.innerHeight
+    carCanvas.height = window.innerHeight
     // We are doing Canvas height here, so that it redraws(clears) the extra car trail
+    networkCanvas.height = window.innerHeight
 
-    ctx.save()
+    carCtx.save()
     // Saves the current context
-    ctx.translate(0, -car.y + canvas.height * 0.7)
+    carCtx.translate(0, -car.y + carCanvas.height * 0.7)
     // Starts moving the context(canvas) by the amount of y movement of the car. Adds canvas.height * 0.7 to center the car to middle
 
-    road.draw(ctx)
+    road.draw(carCtx)
     // Calls for drawing of entire road bounding box
     for (let i = 0; i < traffic.length; i++) {
-        traffic[i].draw(ctx, 'gray')
+        traffic[i].draw(carCtx, 'gray')
         // Calls for drawing of entire traffic car bounding box
     }
-    car.draw(ctx, 'black')
+    car.draw(carCtx, 'black')
     // Calls for drawing of entire car bounding box
 
-    ctx.restore()
+    carCtx.restore()
     // Restores the values past animation
+
+    networkCtx.lineDashOffset = -time / 50
+    // Code to animate motion of the network
+
+    Visualizer.drawNetwork(networkCtx, car.brain)
+    // The visualiser class has static function draw network that takes the brain and draws it for us
 
     requestAnimationFrame(animate)
     // Adds a request to the render-queue to Animate the frame once more
