@@ -5,6 +5,15 @@ class Car {
         this.width = width
         this.height = height
 
+        this.speed = 0
+        this.acceleration = 0.2
+        // Giving these parameters to make Car movement feel more realistic with physics simulated with basic classical laws of motion
+
+        this.maxSpeed = 3
+        // Capping the speed
+        this.friction = 0.05
+        // Coefficient of friction implemented
+
         this.controls = new Controls('KEYS')
         // Creating a controls object which will contain the controls to move the car as required
     }
@@ -14,13 +23,44 @@ class Car {
 
     update() {
         if (this.controls.forward) {
-            this.y -= 2
-            // When moving forward, we decrement y value to make it closer to the top of the screen
+            this.speed += this.acceleration
+            // Speed increases
         }
         if (this.controls.reverse) {
-            this.y += 2
-            // When moving forward, we decrement y value to make it closer to the top of the screen
+            this.speed -= this.acceleration
+            // Speed decreases
         }
+
+        if (this.speed > this.maxSpeed) {
+            this.speed = this.maxSpeed
+            // When speed exceeds maxSpeed, make it equal to maxSpeed
+        }
+        if (this.speed < -this.maxSpeed / 2) {
+            this.speed = -this.maxSpeed / 2
+            // When speed exceeds maxSpeed, make it equal to maxSpeed
+            // Reverse maxSpeed is capped to half of forward maxSpeed
+        }
+
+        if (this.speed > 0) {
+            this.speed -= this.friction
+            // Slowdown due to friction
+        }
+        if (this.speed < 0) {
+            this.speed += this.friction
+            // Reverse Slowdown due to friction
+        }
+
+        if (Math.abs(this.speed) < this.friction) {
+            this.speed = 0
+            // This is to combat tiny movements that happen when speed is between 0 and friction amount
+            // When within that tiny Range, to stop bouncing around, set value to 0
+        }
+
+        this.y -= this.speed
+        // Finally updating speed
+        // When moving forward, we decrement y value to make it closer to the top of the screen
+        // When moving forward, we decrement y value to make it closer to the top of the screen
+        // This is auto handled due to the sign of speed being correct formulae wise
     }
 
     // -------------- DRAWING THE CAR ---------------
