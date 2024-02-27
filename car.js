@@ -18,6 +18,9 @@ class Car {
         // To keep track of the angle the car is facing
         // Coordinate system is unti circle rotated 90deg counter-clockwise
 
+        this.damaged = false
+        // Assuming that car is not damaged at first
+
         this.sensor = new Sensor(this)
         // Creating a new sensor Object, to cast rays and calculate intersections. We pass car as the parameter
 
@@ -29,12 +32,63 @@ class Car {
     // -------------- UPDATING THE CAR POS ---------------
 
     update(roadBorders) {
-        // Recieves the roadBorders and passes it to the sensor for ray collision
-        this.#move()
-        // Calling the move function that handles movement
+        if (!this.damaged) {
+            //Only moves the car when not damaged. When damaged, it stops
+
+            // Recieves the roadBorders and passes it to the sensor for ray collision
+            this.#move()
+            // Calling the move function that handles movement
+
+            this.polygon = this.#createPolygon()
+            // Calling the polygon method to find the 4 corners
+
+            this.damaged = this.#assessDamage(roadBorders)
+            // Calling the assessDamage method to check if its damaged or not
+        }
 
         this.sensor.update(roadBorders)
         // Calling the update method from sensor
+    }
+
+    // Method to check if car is damaged
+    #assessDamage(roadBorders) {
+        for (let i = 0; i < roadBorders.length; i++) {
+            // Looping through all borders
+            if (polysIntersect(this.polygon, roadBorders[i])) {
+                // If there is a polygon Intersection, true
+                return true
+            }
+        }
+        return false
+    }
+
+    // Creates a bounding box by finding the 4 corners
+    #createPolygon() {
+        const points = []
+        // All the 4 points are saved here
+        const rad = Math.hypot(this.width, this.height) / 2
+        // Finding half of the diagonal of the rectangle
+        const alpha = Math.atan2(this.width, this.height)
+        // Finding the angle from center to the corner
+
+        // Using trignometric ratios to find the 4 corners of the triangle
+        points.push({
+            x: this.x - Math.sin(this.angle - alpha) * rad,
+            y: this.y - Math.cos(this.angle - alpha) * rad,
+        })
+        points.push({
+            x: this.x - Math.sin(this.angle + alpha) * rad,
+            y: this.y - Math.cos(this.angle + alpha) * rad,
+        })
+        points.push({
+            x: this.x - Math.sin(Math.PI + this.angle - alpha) * rad,
+            y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad,
+        })
+        points.push({
+            x: this.x - Math.sin(Math.PI + this.angle + alpha) * rad,
+            y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad,
+        })
+        return points
     }
 
     #move() {
@@ -126,34 +180,26 @@ class Car {
     // -------------- DRAWING THE CAR ---------------
 
     draw(ctx) {
-        // To implement rotations
-        ctx.save()
-        // Saves current values
-        ctx.translate(this.x, this.y)
-        // Moving ctx to x and y position
-        ctx.rotate(-this.angle)
-        // Rotates by required value. Clockwise default thus -ve
+        if (this.damaged) {
+            ctx.fillStyle = 'red'
+            // Damaged cars are red
+        } else {
+            ctx.fillStyle = 'black'
+            // Normal cars are black
+        }
 
-        // The draw method takes ctx of type Context to mark context of drawing start position
         ctx.beginPath()
-        // Marks the start position of drawing
+        // Pendown for drawing
 
-        ctx.rect(
-            -this.width / 2,
-            //Centre of car on x axis. Moves that amount from x translated position
-            -this.height / 2,
-            //Center of car on y axis. Moves that amount from y translated position
-            this.width,
-            this.height,
-        )
-        // The .rect() function takes x and y parameters to draw a rectanlgle. We need the centre of the rectangle to be at centre of car.
-        // For this, we calulate the start drawing position using the formulae given above
+        ctx.moveTo(this.polygon[0].x, this.polygon[0].y)
+        // Moves pen position to first corner
+        for (let i = 1; i < this.polygon.length; i++) {
+            ctx.lineTo(this.polygon[i].x, this.polygon[i].y)
+            // Makes line to each corner one by one
+        }
 
         ctx.fill()
-        // Fills the drawn shape with solid colour
-
-        ctx.restore()
-        // To stop the calling of functions and prevents infinite translations/rotations
+        // Fills the drawn rectangle
 
         this.sensor.draw(ctx)
         // Passing the draw method which has ctx parameter from sensor. So now the responsibility of drawing goes to car
