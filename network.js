@@ -19,21 +19,26 @@ class NeuralNetwork {
     }
 
     static mutate(network, amount = 1) {
+        // This mutates the layers of the network
         network.levels.forEach((level) => {
             for (let i = 0; i < level.biases.length; i++) {
+                // Goes through everything in the network
                 level.biases[i] = lerp(
                     level.biases[i],
                     Math.random() * 2 - 1,
                     amount,
                 )
+                // Interpolates to change the value to a number between current bias and another bias between -1,1
             }
             for (let i = 0; i < level.weights.length; i++) {
+                // Repeating for all the weights
                 for (let j = 0; j < level.weights[i].length; j++) {
                     level.weights[i][j] = lerp(
                         level.weights[i][j],
                         Math.random() * 2 - 1,
                         amount,
                     )
+                    // Current value vs New Random
                 }
             }
         })

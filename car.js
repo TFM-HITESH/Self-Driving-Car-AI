@@ -1,5 +1,13 @@
 class Car {
-    constructor(x, y, width, height, controlType, maxSpeed = 3) {
+    constructor(
+        x,
+        y,
+        width,
+        height,
+        controlType,
+        maxSpeed = 3,
+        color = 'blue',
+    ) {
         this.x = x
         this.y = y
         this.width = width
@@ -36,6 +44,23 @@ class Car {
 
         this.controls = new Controls(controlType)
         // Creating a controls object which will contain the controls to move the car as required
+
+        this.img = new Image()
+        this.img.src = 'car.png'
+
+        this.mask = document.createElement('canvas')
+        this.mask.width = width
+        this.mask.height = height
+
+        const maskCtx = this.mask.getContext('2d')
+        this.img.onload = () => {
+            maskCtx.fillStyle = color
+            maskCtx.rect(0, 0, this.width, this.height)
+            maskCtx.fill()
+
+            maskCtx.globalCompositeOperation = 'destination-atop'
+            maskCtx.drawImage(this.img, 0, 0, this.width, this.height)
+        }
     }
     // Using a constructor to assign the values from object creating into the object memory (instance variables)
 
@@ -214,30 +239,30 @@ class Car {
 
     // -------------- DRAWING THE CAR ---------------
 
-    draw(ctx, color) {
-        if (this.damaged) {
-            ctx.fillStyle = 'red'
-            // Damaged cars are red
-        } else {
-            ctx.fillStyle = color
-            // Normal cars are black
+    draw(ctx, drawSensor = false) {
+        ctx.save()
+        ctx.translate(this.x, this.y)
+        ctx.rotate(-this.angle)
+        if (!this.damaged) {
+            ctx.drawImage(
+                this.mask,
+                -this.width / 2,
+                -this.height / 2,
+                this.width,
+                this.height,
+            )
+            ctx.globalCompositeOperation = 'multiply'
         }
-
-        ctx.beginPath()
-        // Pendown for drawing
-
-        ctx.moveTo(this.polygon[0].x, this.polygon[0].y)
-        // Moves pen position to first corner
-        for (let i = 1; i < this.polygon.length; i++) {
-            ctx.lineTo(this.polygon[i].x, this.polygon[i].y)
-            // Makes line to each corner one by one
-        }
-
-        ctx.fill()
-        // Fills the drawn rectangle
-
-        // Only draw the sensors if it exists (NON DUMMY)
-        if (this.sensor) {
+        ctx.drawImage(
+            this.img,
+            -this.width / 2,
+            -this.height / 2,
+            this.width,
+            this.height,
+        )
+        ctx.restore()
+        // Only draw the sensors if it exists (NON DUMMY). Also only when drawSensor is true
+        if (this.sensor && drawSensor) {
             this.sensor.draw(ctx)
             // Passing the draw method which has ctx parameter from sensor. So now the responsibility of drawing goes to car
         }

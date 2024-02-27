@@ -9,7 +9,15 @@
     <body>
         <canvas id="carCanvas"></canvas>
         <!-- Creating a Canvas for the road -->
+
+        <div id="verticalButtons">
+            <button onclick="save()">💾</button>
+            <button onclick="discard()">🗑️</button>
+        </div>
+
         <canvas id="networkCanvas"></canvas>
+
+        <canvas id="playerCanvas"></canvas>
         <!-- Creatign a Canvas to display the neural network -->
         <script src="network.js"></script>
         <!-- File holds the neural network AI -->
