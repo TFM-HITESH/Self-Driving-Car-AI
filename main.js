@@ -20,8 +20,9 @@ const car = new Car(road.getLaneCenter(1), 100, 30, 50)
 animate()
 
 function animate() {
-    car.update()
+    car.update(road.borders)
     // Calls for re-rendering of object on the page
+    // Giving the road borders to the car object
 
     canvas.height = window.innerHeight
     // We are doing Canvas height here, so that it redraws(clears) the extra car trail

@@ -18,6 +18,9 @@ class Car {
         // To keep track of the angle the car is facing
         // Coordinate system is unti circle rotated 90deg counter-clockwise
 
+        this.sensor = new Sensor(this)
+        // Creating a new sensor Object, to cast rays and calculate intersections. We pass car as the parameter
+
         this.controls = new Controls('KEYS')
         // Creating a controls object which will contain the controls to move the car as required
     }
@@ -25,9 +28,13 @@ class Car {
 
     // -------------- UPDATING THE CAR POS ---------------
 
-    update() {
+    update(roadBorders) {
+        // Recieves the roadBorders and passes it to the sensor for ray collision
         this.#move()
         // Calling the move function that handles movement
+
+        this.sensor.update(roadBorders)
+        // Calling the update method from sensor
     }
 
     #move() {
@@ -147,5 +154,8 @@ class Car {
 
         ctx.restore()
         // To stop the calling of functions and prevents infinite translations/rotations
+
+        this.sensor.draw(ctx)
+        // Passing the draw method which has ctx parameter from sensor. So now the responsibility of drawing goes to car
     }
 }
