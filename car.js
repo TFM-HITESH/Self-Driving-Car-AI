@@ -14,6 +14,10 @@ class Car {
         this.friction = 0.05
         // Coefficient of friction implemented
 
+        this.angle = 0
+        // To keep track of the angle the car is facing
+        // Coordinate system is unti circle rotated 90deg counter-clockwise
+
         this.controls = new Controls('KEYS')
         // Creating a controls object which will contain the controls to move the car as required
     }
@@ -22,6 +26,11 @@ class Car {
     // -------------- UPDATING THE CAR POS ---------------
 
     update() {
+        this.#move()
+        // Calling the move function that handles movement
+    }
+
+    #move() {
         if (this.controls.forward) {
             this.speed += this.acceleration
             // Speed increases
@@ -56,7 +65,51 @@ class Car {
             // When within that tiny Range, to stop bouncing around, set value to 0
         }
 
-        this.y -= this.speed
+        // -------------- LEGACY CAR MOVEMENT ---------------
+
+        // Basic Legacy Implementation for left and right motion
+        // This implementation, while being unrealistic also breaks the laws of the simulation. When going diagonally, it has the forward max speed of 3 as well as the sideways max speed of 3 that gives as 3 * root2 as the final speed which is greater than max speed
+
+        // if (this.controls.left) {
+        //     this.x -= 2
+        //     // Closer to left side (0)
+        // }
+        // if (this.controls.right) {
+        //     this.x += 2
+        //     // Closer to right side (1920)
+        // }
+
+        // -------------- LEGACY CAR UPDATION ---------------
+
+        // This is nothing but angles on a unit circle. But in this case, 0deg is facing upwards(forward for the car). Thus, its a unit circle rotated anticlockwise by 90deg. That is why left is +ve and right is -ve
+        // The above defines our coordinate system
+
+        // Note : By constantly checking for Non-Zero speed before left or right updation, we remove the possibility of car spinning on the spot. When not having any speed, the car cannot change direction, so no rotation on the spot
+        if (this.speed != 0) {
+            const flip = this.speed > 0 ? 1 : -1
+            // Checks if we are currently reversing or not. Multiplies that value into left and right movement to stop the weird behaviour of inverted reverse controls
+
+            if (this.controls.left) {
+                this.angle += 0.03 * flip
+                // Leftwards considered positive angle
+            }
+            if (this.controls.right) {
+                this.angle -= 0.03 * flip
+                // Rightwards considered negative angle
+            }
+        }
+
+        // -------------- TRIGNOMETRIC CAR UPDATION ---------------
+
+        this.x -= Math.sin(this.angle) * this.speed
+        // x value changes as a measure of sin(angle) * speed magnitude
+        this.y -= Math.cos(this.angle) * this.speed
+        // y value changes as a measure of cos(angle) * speed magnitude
+
+        // In normal phsyics, horizontal movement with cos and vertical with y. Since the circle is rotated here, we reverse them and subtract
+
+        // -------------- LEGACY CAR UPDATION ---------------
+        // this.y -= this.speed
         // Finally updating speed
         // When moving forward, we decrement y value to make it closer to the top of the screen
         // When moving forward, we decrement y value to make it closer to the top of the screen
@@ -66,15 +119,23 @@ class Car {
     // -------------- DRAWING THE CAR ---------------
 
     draw(ctx) {
+        // To implement rotations
+        ctx.save()
+        // Saves current values
+        ctx.translate(this.x, this.y)
+        // Moving ctx to x and y position
+        ctx.rotate(-this.angle)
+        // Rotates by required value. Clockwise default thus -ve
+
         // The draw method takes ctx of type Context to mark context of drawing start position
         ctx.beginPath()
         // Marks the start position of drawing
 
         ctx.rect(
-            this.x - this.width / 2,
-            //Centre of car on x axis
-            this.y - this.height / 2,
-            //Center of car on y axis
+            -this.width / 2,
+            //Centre of car on x axis. Moves that amount from x translated position
+            -this.height / 2,
+            //Center of car on y axis. Moves that amount from y translated position
             this.width,
             this.height,
         )
@@ -83,5 +144,8 @@ class Car {
 
         ctx.fill()
         // Fills the drawn shape with solid colour
+
+        ctx.restore()
+        // To stop the calling of functions and prevents infinite translations/rotations
     }
 }
