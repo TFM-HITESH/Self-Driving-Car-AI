@@ -9,11 +9,12 @@ const ctx = canvas.getContext('2d')
 // We only need 2d mode here
 // All functions associated with drawing can be referenced to this context
 
-const car = new Car(100, 100, 30, 50)
-// Creating a car object at x=100, y=100, width=30, height=50 (all in px)
+const road = new Road(canvas.width / 2, canvas.width * 0.9)
+// Placing the road at half the width of the canvas (Centered)
+// Giving the road a width of 90% canvas width. 10% Margin
 
-car.draw(ctx)
-// Drawing the required object using the context
+const car = new Car(road.getLaneCenter(1), 100, 30, 50)
+// Creating a car object at x=center of a lane n, y=100, width=30, height=50 (all in px)
 
 // Custom function to update the motion of car
 animate()
@@ -25,8 +26,19 @@ function animate() {
     canvas.height = window.innerHeight
     // We are doing Canvas height here, so that it redraws(clears) the extra car trail
 
+    ctx.save()
+    // Saves the current context
+    ctx.translate(0, -car.y + canvas.height * 0.7)
+    // Starts moving the context(canvas) by the amount of y movement of the car. Adds canvas.height * 0.7 to center the car to middle
+
+    road.draw(ctx)
+    // Calls for drawing of entire road bounding box
     car.draw(ctx)
-    // Calls for re-drawing of entire car bounding box
+    // Calls for drawing of entire car bounding box
+
+    ctx.restore()
+    // Restores the values past animation
+
     requestAnimationFrame(animate)
     // Adds a request to the render-queue to Animate the frame once more
     // This calls the animate method many times per second, giving the illusion of motion
