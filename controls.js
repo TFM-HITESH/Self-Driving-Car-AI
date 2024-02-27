@@ -18,6 +18,7 @@ class Controls {
                 break
             case 'DUMMY':
                 this.forward = true
+                // When dummy car, it simply moves forward at constant rate
                 break
         }
     }

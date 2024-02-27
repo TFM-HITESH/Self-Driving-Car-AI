@@ -15,20 +15,20 @@ class Sensor {
         // Holds the results. Stores if intersection is there, and if yes, at what distance
     }
 
-    update(roadBorders) {
+    update(roadBorders, traffic) {
         this.#castRays()
         // Calls the private method castRays
         this.readings = []
         for (let i = 0; i < this.rays.length; i++) {
             // Iterating to populate the readings array
             this.readings.push(
-                this.#getReading(this.rays[i], roadBorders),
+                this.#getReading(this.rays[i], roadBorders, traffic),
                 // Special method to get readings
             )
         }
     }
 
-    #getReading(ray, roadBorders) {
+    #getReading(ray, roadBorders, traffic) {
         // Takes params ray and roadBorders
 
         let touches = []
@@ -50,20 +50,23 @@ class Sensor {
             }
         }
 
-        //     for (let i = 0; i < traffic.length; i++) {
-        //         const poly = traffic[i].polygon
-        //         for (let j = 0; j < poly.length; j++) {
-        //             const value = getIntersection(
-        //                 ray[0],
-        //                 ray[1],
-        //                 poly[j],
-        //                 poly[(j + 1) % poly.length],
-        //             )
-        //             if (value) {
-        //                 touches.push(value)
-        //             }
-        //         }
-        //     }
+        for (let i = 0; i < traffic.length; i++) {
+            // Going through traffic
+            const poly = traffic[i].polygon
+            for (let j = 0; j < poly.length; j++) {
+                // Going through all the lines of the polygon and seeing for intersection
+                const value = getIntersection(
+                    ray[0],
+                    ray[1],
+                    poly[j],
+                    poly[(j + 1) % poly.length],
+                )
+                if (value) {
+                    touches.push(value)
+                    // If there is intersection, add to touches
+                }
+            }
+        }
 
         if (touches.length == 0) {
             // No touches encountered

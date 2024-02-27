@@ -1,5 +1,5 @@
 class Car {
-    constructor(x, y, width, height) {
+    constructor(x, y, width, height, controlType, maxSpeed = 3) {
         this.x = x
         this.y = y
         this.width = width
@@ -9,7 +9,7 @@ class Car {
         this.acceleration = 0.2
         // Giving these parameters to make Car movement feel more realistic with physics simulated with basic classical laws of motion
 
-        this.maxSpeed = 3
+        this.maxSpeed = maxSpeed
         // Capping the speed
         this.friction = 0.05
         // Coefficient of friction implemented
@@ -21,17 +21,20 @@ class Car {
         this.damaged = false
         // Assuming that car is not damaged at first
 
-        this.sensor = new Sensor(this)
-        // Creating a new sensor Object, to cast rays and calculate intersections. We pass car as the parameter
+        // Only create sensor if car is not a dummy
+        if (controlType != 'DUMMY') {
+            this.sensor = new Sensor(this)
+            // Creating a new sensor Object, to cast rays and calculate intersections. We pass car as the parameter
+        }
 
-        this.controls = new Controls('KEYS')
+        this.controls = new Controls(controlType)
         // Creating a controls object which will contain the controls to move the car as required
     }
     // Using a constructor to assign the values from object creating into the object memory (instance variables)
 
     // -------------- UPDATING THE CAR POS ---------------
 
-    update(roadBorders) {
+    update(roadBorders, traffic) {
         if (!this.damaged) {
             //Only moves the car when not damaged. When damaged, it stops
 
@@ -42,19 +45,29 @@ class Car {
             this.polygon = this.#createPolygon()
             // Calling the polygon method to find the 4 corners
 
-            this.damaged = this.#assessDamage(roadBorders)
+            this.damaged = this.#assessDamage(roadBorders, traffic)
             // Calling the assessDamage method to check if its damaged or not
         }
 
-        this.sensor.update(roadBorders)
-        // Calling the update method from sensor
+        // Only update sensor positions when sensor exists (NON DUMMY)
+        if (this.sensor) {
+            this.sensor.update(roadBorders, traffic)
+            // Calling the update method from sensor
+        }
     }
 
     // Method to check if car is damaged
-    #assessDamage(roadBorders) {
+    #assessDamage(roadBorders, traffic) {
         for (let i = 0; i < roadBorders.length; i++) {
             // Looping through all borders
             if (polysIntersect(this.polygon, roadBorders[i])) {
+                // If there is a polygon Intersection, true
+                return true
+            }
+        }
+        for (let i = 0; i < traffic.length; i++) {
+            // Looping through all borders
+            if (polysIntersect(this.polygon, traffic[i].polygon)) {
                 // If there is a polygon Intersection, true
                 return true
             }
@@ -179,12 +192,12 @@ class Car {
 
     // -------------- DRAWING THE CAR ---------------
 
-    draw(ctx) {
+    draw(ctx, color) {
         if (this.damaged) {
             ctx.fillStyle = 'red'
             // Damaged cars are red
         } else {
-            ctx.fillStyle = 'black'
+            ctx.fillStyle = color
             // Normal cars are black
         }
 
@@ -201,7 +214,10 @@ class Car {
         ctx.fill()
         // Fills the drawn rectangle
 
-        this.sensor.draw(ctx)
-        // Passing the draw method which has ctx parameter from sensor. So now the responsibility of drawing goes to car
+        // Only draw the sensors if it exists (NON DUMMY)
+        if (this.sensor) {
+            this.sensor.draw(ctx)
+            // Passing the draw method which has ctx parameter from sensor. So now the responsibility of drawing goes to car
+        }
     }
 }
