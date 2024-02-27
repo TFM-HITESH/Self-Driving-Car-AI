@@ -10,17 +10,22 @@ body {
 #verticalButtons {
     display: flex;
     flex-direction: column;
+    padding: 1rem;
 }
 
 button {
     border: none;
     border-radius: 5px;
-    padding: 5px 5px 7px 5px;
-    margin: 2px;
+    padding: 1rem;
+    margin: 0.5rem;
     cursor: pointer;
+    transition: all 0.3s ease;
+    border: 10px solid darkgray;
+    border-radius: 10px;
 }
 button:hover {
-    background: blue;
+    background: #555555;
+    border: 10px solid #2c2c2c;
 }
 
 #networkCanvas {

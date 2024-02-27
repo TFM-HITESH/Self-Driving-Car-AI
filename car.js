@@ -91,7 +91,7 @@ class Car {
             // This offsets mapping gives low values when the objects are far away and high values when closer. To incentivize neural network to maximize distance and stay away from everything
 
             const outputs = NeuralNetwork.feedForward(offsets, this.brain)
-            console.log(outputs)
+            // console.log(outputs)
 
             // Use the outputs to control car if AI is active
             if (this.useBrain) {

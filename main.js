@@ -5,7 +5,7 @@ carCanvas.width = 300
 
 const networkCanvas = document.getElementById('networkCanvas')
 // Getting the Canvas Element to make changes
-networkCanvas.width = 500
+networkCanvas.width = 900
 // Setting the Dimensions of network
 
 const carCtx = carCanvas.getContext('2d')
@@ -38,15 +38,53 @@ if (localStorage.getItem('bestBrain')) {
     }
 }
 
+const NTRAFF = 150
 const traffic = [
-    new Car(road.getLaneCenter(1), -100, 55, 85, 'DUMMY', 2, getRandomColor()),
-    new Car(road.getLaneCenter(0), -300, 55, 85, 'DUMMY', 2, getRandomColor()),
-    new Car(road.getLaneCenter(2), -300, 55, 85, 'DUMMY', 2, getRandomColor()),
-    new Car(road.getLaneCenter(0), -500, 55, 85, 'DUMMY', 2, getRandomColor()),
-    new Car(road.getLaneCenter(1), -500, 55, 85, 'DUMMY', 2, getRandomColor()),
-    new Car(road.getLaneCenter(1), -700, 55, 85, 'DUMMY', 2, getRandomColor()),
-    new Car(road.getLaneCenter(2), -700, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(1), -100, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(0), -300, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(2), -300, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(0), -500, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(1), -500, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(1), -700, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(2), -700, 55, 85, 'DUMMY', 2, getRandomColor()),
 ]
+
+let trafficDist = 100
+const lanes = []
+
+for (let i = 0; i < NTRAFF; i++) {
+    let laneNum = Math.round(Math.random() * 2)
+    lanes.push(laneNum)
+}
+
+for (let i = 0; i < NTRAFF; i++) {
+    let laneNum1 = Math.round(Math.random() * Math.random() * 2387329) % 2
+    let laneNum2 = Math.round(Math.random() * Math.random() * 7742124) % 2
+    trafficDist -= 250
+
+    traffic.push(
+        new Car(
+            road.getLaneCenter(laneNum1),
+            trafficDist,
+            55,
+            85,
+            'DUMMY',
+            2,
+            getRandomColor(),
+        ),
+    )
+    traffic.push(
+        new Car(
+            road.getLaneCenter(laneNum2),
+            trafficDist,
+            55,
+            85,
+            'DUMMY',
+            2,
+            getRandomColor(),
+        ),
+    )
+}
 // Creating an array of traffic obstacles. DUMMY means its traffic. 2 is maxspeed of dummy
 
 // Custom function to update the motion of car
