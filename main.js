@@ -22,7 +22,7 @@ const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9)
 // Creating a car object at x=center of a lane n, y=100, width=30, height=50 (all in px). KEYS means control is given to Human
 
 // --------------- GENERATING N CARS ---------------
-const N = 500
+const N = 100
 const cars = generateCars(N)
 // Making 100 cars
 let bestCar = cars[0]
@@ -38,15 +38,15 @@ if (localStorage.getItem('bestBrain')) {
     }
 }
 
-const NTRAFF = 150
+const NTRAFF = 25
 const traffic = [
     // new Car(road.getLaneCenter(1), -100, 55, 85, 'DUMMY', 2, getRandomColor()),
-    // new Car(road.getLaneCenter(0), -300, 55, 85, 'DUMMY', 2, getRandomColor()),
-    // new Car(road.getLaneCenter(2), -300, 55, 85, 'DUMMY', 2, getRandomColor()),
-    // new Car(road.getLaneCenter(0), -500, 55, 85, 'DUMMY', 2, getRandomColor()),
-    // new Car(road.getLaneCenter(1), -500, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(0), -400, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(2), -400, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(0), -700, 55, 85, 'DUMMY', 2, getRandomColor()),
     // new Car(road.getLaneCenter(1), -700, 55, 85, 'DUMMY', 2, getRandomColor()),
-    // new Car(road.getLaneCenter(2), -700, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(1), -1000, 55, 85, 'DUMMY', 2, getRandomColor()),
+    // new Car(road.getLaneCenter(2), -1000, 55, 85, 'DUMMY', 2, getRandomColor()),
 ]
 
 let trafficDist = 100
@@ -75,7 +75,7 @@ for (let i = 0; i < NTRAFF; i++) {
     )
     traffic.push(
         new Car(
-            road.getLaneCenter(laneNum2),
+            road.getLaneCenter(laneNum2 + 1),
             trafficDist,
             55,
             85,
